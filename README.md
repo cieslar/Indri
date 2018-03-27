@@ -18,9 +18,21 @@ The project was named after critically endangered species of lemurs - Indri. Sho
 
 ## Citing our work
 
-If you use our work in your a publication or as a jump-start for your own research, please cite our work ([arxiv](http://)):
+If you use our work in your a publication or as a jump-start for your own research, please cite our work ([arxiv](http://arxiv.org/abs/1803.02397)):
 ```
-bibtex
+@ARTICLE{2018arXiv180302397C,
+   author = {{Cie{\'s}lar}, M. and {Bulik}, T. and {Os{\l}owski}, S.},
+    title = "{Markov chain Monte Carlo population synthesis of single radio pulsars in the Galaxy}",
+  journal = {ArXiv e-prints},
+archivePrefix = "arXiv",
+   eprint = {1803.02397},
+ primaryClass = "astro-ph.IM",
+ keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena},
+     year = 2018,
+    month = mar,
+   adsurl = {http://adsabs.harvard.edu/abs/2018arXiv180302397C},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
 ```
 
 In case of forking the code - please, make sure to cite the external sources used therein as well!
