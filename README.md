@@ -2,7 +2,7 @@
 *by* Marek Cieślar, Tomasz Bulik, Stefan Osłowski
 
 This program was made as a tool to study the population of single (not in binary or hierarchical systems) Neutron Stars.
-Given stating distribution of parameters (birth place, velocity, magnetic field, period) it moves a set of stars through time (by evolving spin period and magnetic field) and space (flying inside Galactic potential). Upon completion of the evolution a set of observables (radio flux, position, dispersion measure or amplitude of gravitational wave and it's geometrical orientation) is computed and can be compared with a radio survey (e.g. Parkes Multibeam Survey).
+Given a starting distribution of parameters (birth place, velocity, magnetic field, and period), the code moves a set of stars through the time (by evolving spin period and magnetic field) and the space (by propagating through the Galactic potential). Upon completion of the evolution, a set of observables is computed (radio flux, position, dispersion measure) and compared with a radio survey such as the Parkes Multibeam Survey. The models' parameters are optimised by using the Markov Chain Monte Carlo technique. 
 
 The project was effectively started in the January, 2014 and ended in the January, 2018. Through this period the development was financially supported form the following sources:
 
