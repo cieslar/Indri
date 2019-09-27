@@ -50,7 +50,8 @@ protected:
 	RealType m_fMaxAge;
 	RealType m_fSunAngle;
 
-	RealType m_PulsarStartingAgeDistribution();
+	RealType m_PulsarStartingAgeDistribution() const;
+    RealType m_PulsarStartingAgeDistribution(const RealType fMinAge, const RealType fMaxAge) const;
 
 	CRadioDetector m_RadioObs;
 
@@ -67,6 +68,8 @@ public:
 
 	void Init1Per100(const bool bSmearAge=false,const RealType fSmearYearsSigma=5.);
 	void Init();
+    void Init(const RealType fMinAge, const RealType fMaxAge);
+
 	void Evolve();	
 	//void Evolve(const RealType fMaxTimeStep);	
 	void Project(const char *FileName);

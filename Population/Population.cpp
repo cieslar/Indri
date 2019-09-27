@@ -72,10 +72,16 @@ CPopulation::~CPopulation()
 	if(bHDFIO) delete pHDFBuf;
 }
 
-RealType CPopulation::m_PulsarStartingAgeDistribution()
+RealType CPopulation::m_PulsarStartingAgeDistribution() const
 {
 	return m_pRanPtr->Flat() * m_fMaxAge;
 }
+
+RealType CPopulation::m_PulsarStartingAgeDistribution(const RealType fMinAge, const RealType fMaxAge) const
+{
+    return m_pRanPtr->Flat() * (fMaxAge-fMinAge) + fMinAge;
+}
+
 
 void CPopulation::Init1Per100(const bool bSmearAge,const RealType fSmearYearsSigma)
 {
@@ -101,6 +107,17 @@ void CPopulation::Init()
 		//pPulsar[i].fRelativeAge = -m_fMaxTimeStep*10;
 		pPulsar[i].fAge=0.;
 		pPulsar[i].fRelativeAge = -m_PulsarStartingAgeDistribution();
+		pPulsar[i].Init(pPulsar[i].fRelativeAge );	
+	}
+}
+
+void CPopulation::Init(const RealType fMinAge, const RealType fMaxAge)
+{
+	for(int i(0);i<m_nNum;i++)
+	{
+		//pPulsar[i].fRelativeAge = -m_fMaxTimeStep*10;
+		pPulsar[i].fAge=0.;
+		pPulsar[i].fRelativeAge = -m_PulsarStartingAgeDistribution(fMinAge,fMaxAge);
 		pPulsar[i].Init(pPulsar[i].fRelativeAge );	
 	}
 }

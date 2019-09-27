@@ -45,7 +45,7 @@ public:
 	~CRandomizer();
 
 	RealType Random();
-//	int RandomInt();
+	unsigned int RandomInt(const unsigned int nModulo);
 	bool RandomLogical();
 	RealType Flat();///< Simple flat distribution [0,1.]
 	RealType FlatOpen();///< (0,1)

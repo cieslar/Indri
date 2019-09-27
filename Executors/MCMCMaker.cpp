@@ -15,6 +15,10 @@ void PrintHelp()
 	cout<<"-vv              - verbose MCMC and Model computations"<<endl;
 	cout<<"-h               - prints this help and provides Example.MCMCConfig.xml"<<endl;
     cout<<"-n               - number of pulsars to consider"<<endl;
+    cout<<"-m <MCMCFile>    - the .bin MCMC file, in case of continuing from a given point in the chain"<<endl;
+    cout<<"-k <LinkNum>     - the point in chain (array-wise) to continoue from"<<endl;
+    cout<<"-l <ChainNum>    - the MCMC chain for continuation"<<endl;
+    cout<<"-r               - switches on the random param walker"<<endl;
 }
 
 int main(int argc, char** argv)
@@ -100,11 +104,56 @@ int main(int argc, char** argv)
 	}
 
 
+    
+
+	if(cmdOptionExists(argv, argv+argc, "-r"))
+	{
+		pCfgPtr->Sim.bUseRandomParamSampler=true;
+    }
+
+
+
+
+
 	pCfgPtr->PostConfigInit();
 	
 
 	
 	CMCMC MCMC;
+
+
+
+    if(cmdOptionExists(argv, argv+argc, "-m"))
+    {
+        pCfgPtr->Sim.bContinueMCMCFromLastPostion=true;
+        char *cMCMCChainsInput = getCmdOption(argv, argv + argc, "-m");
+
+        if(cmdOptionExists(argv, argv+argc, "-k"))
+        {
+            char *cLastMCMCPostion = getCmdOption(argv, argv + argc, "-k");
+            pCfgPtr->Sim.nLastMCMCPostion = atoi(cLastMCMCPostion);
+        }
+        else
+        {
+            pCfgPtr->Sim.nLastMCMCPostion=0;
+            cerr<<"The last MCMC position not specified. Using: "<<pCfgPtr->Sim.nLastMCMCPostion<<endl;
+        }
+
+        if(cmdOptionExists(argv, argv+argc, "-l"))
+        {
+            char *cLastMCMCChain = getCmdOption(argv, argv + argc, "-l");
+            pCfgPtr->Sim.nLastMCMCChain = atoi(cLastMCMCChain);
+        }
+        else
+        {
+            pCfgPtr->Sim.nLastMCMCChain=0;
+            cerr<<"The MCMC chain for continuation not specified not specified. Using: "<<pCfgPtr->Sim.nLastMCMCChain<<endl;
+        }
+
+        MCMC.ReadBinary(cMCMCChainsInput);
+    }
+
+
 	MCMC.PopReadBinary(input);
 	if(pCfgPtr->Sim.bMCMCSequential)
 	{

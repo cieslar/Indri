@@ -17,6 +17,9 @@ void PrintHelp()
 	cout<<"-c <filename>   Xml config file."<<endl;
 	cout<<"-h              Prints this help."<<endl;
 	cout<<"-L <LostETot.dat>"<<endl;
+    cout<<"-CustomAge      Switch to custom age distr."<<endl;
+    cout<<"-MinAge <float> Minimum age in Myr."<<endl;
+    cout<<"-MaxAge <float> Maximum age in Myr."<<endl;
 	cout<<"To run the diagnostics:"<<endl;
 	cout<<"-d <number>     Switches to diagnostic run."<<endl;
 	cout<<"Possible diagnostics:"<<endl;
@@ -114,7 +117,30 @@ int main(int argc, char ** argv)
 
 
 	CPopulation Pop;
-	Pop.Init();
+    if(cmdOptionExists(argv, argv+argc, "-CustomAge"))
+    {
+		char * cMinAge = getCmdOption(argv, argv + argc, "-MinAge");
+		char * cMaxAge = getCmdOption(argv, argv + argc, "-MaxAge");
+        if(!cMinAge || !cMaxAge)
+        {
+            cerr<<"Error. Must specify the Min and Max age.";
+            PrintHelp();
+            return 2;
+        }
+
+		float fMinAge=atof(cMinAge);
+		float fMaxAge=atof(cMaxAge);
+
+
+        Pop.Init(fMinAge,fMaxAge);
+    }
+    else
+    {
+	    Pop.Init();
+    }
+
+
+
 
         Pop.Evolve();
 	char * Lost = getCmdOption(argv, argv + argc, "-L");

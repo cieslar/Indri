@@ -10,14 +10,12 @@
 
 using namespace std;
 
-#if 0
-int CRandomizer::RandomInt()
+unsigned int CRandomizer::RandomInt(const unsigned int nModulo)
 {
 	m_nCalls++;
 	//FIXME czy musze castowac??
-	return static_cast<int>(m_pMTR->randInt());
+	return static_cast<unsigned int>(m_pMTR->randInt()) % nModulo;
 }
-#endif
 
 CRandomizer::~CRandomizer()
 {
