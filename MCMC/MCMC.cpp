@@ -596,7 +596,11 @@ CMCMC::~CMCMC()
 
 
 
-
+void CMCMC::m_VisitLastPositionInChain(const int nChain, const int nLastLink)
+{
+    if(m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Restarting the chain at position: "<<nChain<<" "<<nLastLink<<endl;
+    cout<<m_pChain[nChain][nLastLink]<<endl;
+}
 
 
 SModelParameters CMCMC::m_StartChain()
@@ -667,8 +671,21 @@ void CMCMC::MakeChains()
 			cout<<"Chain: "<<i<<" Link: "<<0<<endl;
 			cout.flush();
 		}
-		m_pChain[i][0] = m_StartChain();
-		for(int j(1); j<m_pCfgPtr->Sim.nNumPerChain; j++)
+        int nStartFrom(1);
+
+        if(m_pCfgPtr->Sim.bContinueMCMCFromLastPostion)
+        {
+            nStartFrom = m_pCfgPtr->Sim.nLastMCMCPostion;
+            m_VisitLastPositionInChain(i,nStartFrom);
+
+            nStartFrom++;
+        }
+        else
+        {
+		    m_pChain[i][0] = m_StartChain();
+        }
+
+		for(int j(nStartFrom); j<m_pCfgPtr->Sim.nNumPerChain; j++)
 		{
 			if(m_pCfgPtr->Sim.bMCMCVerbose)
 			{
@@ -688,6 +705,7 @@ void CMCMC::MakeChains()
 				}
 			}
 	
+            cout<<m_pChain[i][j-1]<<endl;
 			m_pChain[i][j] = m_MakeLink( m_pChain[i][j-1] );
 		}
 	}
@@ -1163,40 +1181,68 @@ void CMCMC::CombineBin(const char* OutputFilename,  char** InputFilenameVec, con
 
 void CMCMC::ReadBinary(const char* Filename)
 {
-	ifstream in(Filename,std::fstream::binary);
-	const size_t nSize = sizeof(SModelParameters);
+    ifstream in(Filename,std::fstream::binary);
+    const size_t nSize = sizeof(SModelParameters);
 
-	//if(nSize != MODEL_PARAMETERS_SIZE) ERROR("Struct size different than predefined");
+    //get the size of the file
+    in.seekg( 0, std::ios::end );
+    size_t nFileSize =  in.tellg();
+    in.seekg (0, in.beg);
+    if((nFileSize-2*sizeof(int))%nSize > 0) ERROR("Struct size mismatch. Markov chain's file reading not possible.");
+    
+    int nNumOfChainsTemp(0);
+    int nNumPerChainTemp(0);
+    
+    in.read(reinterpret_cast<char*>(&nNumOfChainsTemp),sizeof(int));
+    in.read(reinterpret_cast<char*>(&nNumPerChainTemp),sizeof(int));  
+    
+    int nNum=(nFileSize-2*sizeof(int))/nSize;
+    if(nNum != (nNumOfChainsTemp * nNumPerChainTemp)) ERROR("Size of the file seem a bit off... Is it corrupted? >:)");   
+    
+    if(m_pCfgPtr->Sim.bContinueMCMCFromLastPostion)
+    {
+        if(m_pCfgPtr->Sim.nLastMCMCChain>nNumOfChainsTemp)
+        {
+            WARNING("The requested chain number for continuation is beyond the input. Taking modulo");
+            m_pCfgPtr->Sim.nLastMCMCChain = nNumOfChainsTemp % m_pCfgPtr->Sim.nLastMCMCChain;
+        }
+        if(m_pCfgPtr->Sim.nLastMCMCPostion>nNumPerChainTemp)
+        {
+            WARNING("The requested chain position is beyond the input. Taking last position.");
+            m_pCfgPtr->Sim.nLastMCMCPostion = nNumPerChainTemp-1;//
+        }
 
-	m_DeleteChains();
+        if(m_pCfgPtr->Sim.nNumOfChains != nNumOfChainsTemp ) ERROR("Requested number of chains is different then the input.");
+        if(m_pCfgPtr->Sim.nNumPerChain < nNumPerChainTemp  ) ERROR("Requested length of chains is smaller then the input.");
 
-	
-	//get the size of the file
-	in.seekg( 0, std::ios::end );
-	size_t nFileSize =  in.tellg();
-	in.seekg (0, in.beg);
 
-	int nNum=(nFileSize-2*sizeof(int))/nSize;
-	if((nFileSize-2*sizeof(int))%nSize > 0) ERROR("Struct size mismatch. Markov chain's file reading not possible.");
-	in.read(reinterpret_cast<char*>(&m_pCfgPtr->Sim.nNumOfChains),sizeof(int));
-	in.read(reinterpret_cast<char*>(&m_pCfgPtr->Sim.nNumPerChain),sizeof(int));
-	m_CreateEmptyChains();
+    }
+    else
+    {
+        //if(nSize != MODEL_PARAMETERS_SIZE) ERROR("Struct size different than predefined");
+        m_DeleteChains();
 
-	if(nNum != (m_pCfgPtr->Sim.nNumOfChains * m_pCfgPtr->Sim.nNumPerChain)) ERROR("Size of the file seem a bit off... Is it corrupted? >:)");
 
-	//UModelParameters Buffer;
-	for(int i(0); i<m_pCfgPtr->Sim.nNumOfChains; i++)
-	{
-		for(int j(0); j<m_pCfgPtr->Sim.nNumPerChain; j++)
-		{
-			in.read(reinterpret_cast<char *>(&(m_pChain[i][j])), nSize);
-	//		cerr<<i<<" "<<j<<" "<<m_pChain[i][j].fLnLikelihood<<endl;
-		}
-	}	
-	in.close();
+        m_pCfgPtr->Sim.nNumOfChains = nNumOfChainsTemp; 
+        m_pCfgPtr->Sim.nNumPerChain = nNumPerChainTemp;
 
-	m_nNumOfChains=m_pCfgPtr->Sim.nNumOfChains;
-	m_nNumPerChain=m_pCfgPtr->Sim.nNumPerChain;
+        m_CreateEmptyChains();
+    }
+
+    //UModelParameters Buffer;
+    for(int i(0); i<nNumOfChainsTemp; i++)
+    {
+        for(int j(0); j<nNumPerChainTemp; j++)
+        {
+            in.read(reinterpret_cast<char *>(&(m_pChain[i][j])), nSize);
+    //		cerr<<i<<" "<<j<<" "<<m_pChain[i][j].fLnLikelihood<<endl;
+        }
+    }	
+
+    m_nNumOfChains=m_pCfgPtr->Sim.nNumOfChains;
+    m_nNumPerChain=m_pCfgPtr->Sim.nNumPerChain;
+
+    in.close();
 	//cout<<m_nNumOfChains<<" "<<m_nNumPerChain<<endl;
 }
 
@@ -1670,6 +1716,145 @@ SModelParameters CModelParameterDistributions::InitialDistribution() const
 
 SModelParameters CModelParameterDistributions::SamplingDistribution(const SModelParameters Current) const
 {
+    if(m_pCfgPtr->Sim.bUseRandomParamSampler)
+    {
+        return RandomParamSamplingDistribution(Current);
+    }
+    else
+    {
+        return BasicSamplingDistribution(Current);
+    }
+}
+
+SModelParameters CModelParameterDistributions::RandomParamSamplingDistribution(const SModelParameters Current) const
+{
+	SModelParameters Result;
+	Result = m_pCfgPtr->Model;
+    Result.fLnLikelihood=0.;
+
+    //that is not very efficient, the do while is to check if a given, 
+    //random parameter exists
+    int nParamRand(0);
+    const int cnParamMax(11);
+    bool bDone(false);
+    do
+    {
+        //choose a random walker from the enxembly  
+        nParamRand = m_pRanPtr->RandomInt(cnParamMax);
+        //check if given parameter is enabled
+        //
+        //
+        switch(nParamRand)
+        {
+            case 0: 
+                if(m_pCfgPtr->MCMCParameterUse.bLPowerLawGamma)
+                {
+                    Result.fLPowerLawGamma = m_PowerLawGammaSamplingDistribution(Current.fLPowerLawGamma); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fLPowerLawGamma: "<<Result.fLPowerLawGamma<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 1: 
+                if(m_pCfgPtr->MCMCParameterUse.bLPowerLawAlpha)
+                {
+                    Result.fLPowerLawAlpha = m_PowerLawAlphaSamplingDistribution(Current.fLPowerLawAlpha); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fLPowerLawAlpha: "<<Result.fLPowerLawAlpha<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 2: 
+                if(m_pCfgPtr->MCMCParameterUse.bLPowerLawBeta)
+                {
+                    Result.fLPowerLawBeta = m_PowerLawBetaSamplingDistribution(Current.fLPowerLawBeta); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fLPowerLawBeta: "<<Result.fLPowerLawBeta<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 3: 
+                if(m_pCfgPtr->MCMCParameterUse.bBDecayDelta)
+                {
+                    Result.fBDecayDelta = m_BDecayDeltaSamplingDistribution(Current.fBDecayDelta); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fBDecayDelta: "<<Result.fBDecayDelta<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 4: 
+                if(m_pCfgPtr->MCMCParameterUse.bBDecayKappa)
+                {
+                    Result.fBDecayKappa = m_BDecayKappaSamplingDistribution(Current.fBDecayKappa); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fBDecayKappa: "<<Result.fBDecayKappa<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 5: 
+                if(m_pCfgPtr->MCMCParameterUse.bBDecayKappa)
+                {
+                    Result.fBDecayKappa = m_BDecayKappaSamplingDistribution(Current.fBDecayKappa); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fBDecayKappa: "<<Result.fBDecayKappa<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 6: 
+                if(m_pCfgPtr->MCMCParameterUse.bBInitMean)
+                {
+                    Result.fBInitMean = m_BInitMeanSamplingDistribution(Current.fBInitMean); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fBInitMean: "<<Result.fBInitMean<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 7: 
+                if(m_pCfgPtr->MCMCParameterUse.bBInitSigma)
+                {
+                    Result.fBInitSigma = m_BInitSigmaSamplingDistribution(Current.fBInitSigma); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fBInitSigma: "<<Result.fBInitSigma<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 8: 
+                if(m_pCfgPtr->MCMCParameterUse.bPInitMean)
+                {
+                    Result.fPInitMean = m_PInitMeanSamplingDistribution(Current.fPInitMean); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fPInitMean: "<<Result.fPInitMean<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 9: 
+                if(m_pCfgPtr->MCMCParameterUse.bPInitSigma)
+                {
+                    Result.fPInitSigma = m_PInitSigmaSamplingDistribution(Current.fPInitSigma); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fPInitSigma: "<<Result.fPInitSigma<<endl;
+                    bDone=true;
+                }
+                break;
+
+            case 10: 
+                if(m_pCfgPtr->MCMCParameterUse.bDeathPsi)
+                {
+                    Result.fDeathPsi = m_DeathPsiSamplingDistribution(Current.fDeathPsi); 
+                    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Result.fDeathPsi: "<<Result.fDeathPsi<<endl;
+                    bDone=true;
+                }
+                break;
+        }
+    }
+    while(!bDone);
+    if(m_pCfgPtr->Sim.bVerboseParameterUsage && m_pCfgPtr->Sim.bMCMCVerbose) cout<<"Random param was: "<<nParamRand<<endl;
+
+
+    return Result;
+}
+
+SModelParameters CModelParameterDistributions::BasicSamplingDistribution(const SModelParameters Current) const
+{
 	SModelParameters Result;
 	Result = m_pCfgPtr->Model;
     Result.fLnLikelihood=0.;
@@ -1811,7 +1996,6 @@ RealType CModelParameterDistributions::m_PowerLawGammaSamplingDistribution(const
 	do
 	{
 		Result = pow( 10., m_pRanPtr->Gauss( log10(m_pCfgPtr->MCMCStepSize.fLPowerLawGamma), log10(CurrentGamma)  ) );
-
 		if(m_pCfgPtr->MCMCParameterConstraint.bLPowerLawGamma)
 		{
 			bGammaFail = (Result < m_pCfgPtr->ModelConstraints.Min.fLPowerLawGamma) || (Result > m_pCfgPtr->ModelConstraints.Max.fLPowerLawGamma);

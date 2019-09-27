@@ -47,7 +47,11 @@ void CConfiguration::Reseed(const unsigned int nSeed, const unsigned nCalls)
 //FIXME zaimplementowac czytanie z pliku
 void CConfiguration::BasicConfig()
 {
+    Sim.bUseRandomParamSampler=false;
     Sim.bStartMCMCFromModel=false;
+    Sim.bContinueMCMCFromLastPostion=false;
+    Sim.nLastMCMCPostion=0;
+    Sim.nLastMCMCChain=0;
     Sim.bScaleJumps=true;
     Sim.fJumpScallingFactor=0.75;
     Sim.nScaleEveryJumps=100;
@@ -591,6 +595,9 @@ void CConfiguration::ReadMCMC(pugi::xml_document *pDoc, const bool bVerbose)
 	if(bVerbose) cout<<"bStartMCMCFromModel "<<Sim.bStartMCMCFromModel<<endl;
 
 
+	//Node = pDoc->child("config").child("MCMC").find_child_by_attribute("flag", "varname", "bContinueMCMCFromLastPostion");
+	//Sim.bContinueMCMCFromLastPostion=Node.attribute("value").as_bool();
+	//if(bVerbose) cout<<"bContinueMCMCFromLastPostion "<<Sim.bContinueMCMCFromLastPostion<<endl;
 
 
 
@@ -1224,6 +1231,14 @@ void CConfiguration::AppendMCMC(pugi::xml_node *pConfig)
 	Node.insert_attribute_after("type", Node.attribute("varname")) = "bool";
 	Node.append_attribute("value") =  Sim.bStartMCMCFromModel;
 	Node.append_attribute("comment") = "Don't use the uniform initial distr. start from the model.";
+
+	//Node = Simulation.append_child("flag");
+	//Node.append_attribute("varname") = "bContinueMCMCFromLastPostion";
+	//Node.insert_attribute_after("type", Node.attribute("varname")) = "bool";
+	//Node.append_attribute("value") =  Sim.bContinueMCMCFromLastPostion;
+	//Node.append_attribute("comment") = "Continue MCMC chains from the last position.";
+
+
 
 #if 0
 	Node = Simulation.append_child("parameter");

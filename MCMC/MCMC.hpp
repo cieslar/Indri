@@ -129,9 +129,11 @@ public:
 	SModelParameters InitialDistribution() const; ///< Probability distribution for starting the chain
 
 	SModelParameters SamplingDistribution(const SModelParameters Current) const; ///< Probability distribution for making a link in the chain
+	SModelParameters BasicSamplingDistribution(const SModelParameters Current) const; ///< Probability distribution for making a link in the chain
+	SModelParameters RandomParamSamplingDistribution(const SModelParameters Current) const; ///< Probability distribution for making a link in the chain
 
-protected:
 	void ScaleJumpSigmas();
+protected:
 
 	//PowerLaw
 	RealType m_PowerLawGammaInitialDistribution() const; 
@@ -193,7 +195,7 @@ protected:
 	SModelParameters m_StartChain();
 	SModelParameters m_MakeLink(SModelParameters Previous);
 	bool m_CheckParameterOutsideBounds(const SModelParameters Params) const; ///< returns true if parameters are outside predefined bounds.
-
+    void m_VisitLastPositionInChain(const int nChain, const int nLastLink);
 public:
 
 	void Test();

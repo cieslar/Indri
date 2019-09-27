@@ -15,6 +15,7 @@ void PrintHelp()
 	cout<<"-idm <YMW16DMFile>     - input DM file"<<endl;
 	cout<<"-odm <DMFile>          - output DM file"<<endl;
 	cout<<"-h                     - print this help"<<endl;
+    cout<<"-N <number>            - maximum population size"<<endl;
 	cout<<"Usage:"<<endl;
 	cout<<"-prep -i <PopRefFile> -odm <DMFile>"<<endl;
 	cout<<"-change -i <PopRefFile> -idm <YMW16DMFile> -o <ModPopRefFile>"<<endl;
@@ -31,6 +32,21 @@ int main(int argc, char** argv)
 		PrintHelp();
 		return 1;
 	}
+
+
+	char * ile = getCmdOption(argv, argv + argc, "-N");
+	if(!ile)	
+	{
+		cout<<"Warning: Nax population size not specified"<<endl;
+		cout<<"Using nMaxAvailablePulsarNum: "<<pCfgPtr->Sim.nMaxAvailablePulsarNum<<endl;
+		pCfgPtr->Sim.nMaxAvailablePulsarNum=pCfgPtr->Sim.nMaxPulsarNum;
+	}
+	else
+	{
+		pCfgPtr->Sim.nMaxAvailablePulsarNum=pCfgPtr->Sim.nMaxPulsarNum=atoi(ile);
+	}
+
+
 
 
 

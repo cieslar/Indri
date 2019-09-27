@@ -18,7 +18,7 @@ The project was named after critically endangered species of lemurs - Indri. Sho
 
 ## Citing our work
 
-If you use our work in your a publication or as a jump-start for your own research, please cite our work ([arxiv](http://arxiv.org/abs/1803.02397)):
+If you use our work in your publication or as a jump-start for your own research, please cite our work ([arxiv](http://arxiv.org/abs/1803.02397)):
 ```
 @ARTICLE{2018arXiv180302397C,
    author = {{Cie{\'s}lar}, M. and {Bulik}, T. and {Os{\l}owski}, S.},
@@ -61,6 +61,10 @@ A number of external libraries were used to create the simulation program. Those
 - some snippets (marked inside the code)
 - [hdf5](https://support.hdfgroup.org/HDF5/)
 - [healpix](https://healpix.jpl.nasa.gov/) (used to develop some ideas that are not production level ready)
+
+## License 
+
+Please note that content is subject to license and copyright by respective content creators and entities (listed above). The code created by us is licensed under the GNU General Public License v3.0.
 
 
 ## Installation

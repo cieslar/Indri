@@ -127,6 +127,11 @@ struct SSimulationParameters
     int nScaleEveryJumps;
 
     bool bStartMCMCFromModel;
+    bool bContinueMCMCFromLastPostion;
+    int nLastMCMCPostion;
+    int nLastMCMCChain;
+
+    bool bUseRandomParamSampler;
 };
 
 struct SOutputParameters 
