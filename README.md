@@ -18,21 +18,24 @@ The project was named after critically endangered species of lemurs - Indri. Sho
 
 ## Citing our work
 
-If you use our work in your publication or as a jump-start for your own research, please cite our work ([arxiv](http://arxiv.org/abs/1803.02397)):
+If you use our work in your publication or as a jump-start for your own research, please cite our work ([MNRAS](https://dx.doi.org/10.1093/mnras/staa073), [arxiv](http://arxiv.org/abs/1803.02397)):
 ```
-@ARTICLE{2018arXiv180302397C,
-   author = {{Cie{\'s}lar}, M. and {Bulik}, T. and {Os{\l}owski}, S.},
-    title = "{Markov chain Monte Carlo population synthesis of single radio pulsars in the Galaxy}",
-  journal = {ArXiv e-prints},
-archivePrefix = "arXiv",
-   eprint = {1803.02397},
- primaryClass = "astro-ph.IM",
- keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - High Energy Astrophysical Phenomena},
-     year = 2018,
-    month = mar,
-   adsurl = {http://adsabs.harvard.edu/abs/2018arXiv180302397C},
-  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+@article{10.1093/mnras/staa073,
+    author = {Cieślar, Marek and Bulik, Tomasz and Osłowski, Stefan},
+    title = "{Markov Chain Monte Carlo population synthesis of single radio pulsars in the Galaxy}",
+    journal = {Monthly Notices of the Royal Astronomical Society},
+    volume = {492},
+    number = {3},
+    pages = {4043-4057},
+    year = {2020},
+    month = {01},
+    issn = {0035-8711},
+    doi = {10.1093/mnras/staa073},
+    url = {https://doi.org/10.1093/mnras/staa073},
+    eprint = {https://academic.oup.com/mnras/article-pdf/492/3/4043/32215211/staa073.pdf},
 }
+
+
 ```
 
 In case of forking the code - please, make sure to cite the external sources used therein as well!
