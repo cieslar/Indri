@@ -182,24 +182,23 @@ CPulsarPhysics::~CPulsarPhysics()
 
 RealType CPulsarPhysics::m_FinalLogBFieldDistribution()
 {
-	
+    const RealType cfLog2Ln(log(10.));
 	RealType fParamLogBFieldMinMean(m_pCfgPtr->Model.fBFinalMean);
 	RealType fParamLogBFieldMinSigma(m_pCfgPtr->Model.fBFinalSigma);
 
-	return m_pRanPtr->Gauss(fParamLogBFieldMinSigma, fParamLogBFieldMinMean);
+	return m_pRanPtr->Gauss(cfLog2Ln*fParamLogBFieldMinSigma, cfLog2Ln*fParamLogBFieldMinMean)/cfLog2Ln;
 }
 
 RealType CPulsarPhysics::m_InitLogBFieldDistribution()
-{
-	
+{	
+    const RealType cfLog2Ln(log(10.));
 	RealType fParamLogBFieldMean(12.65);//[G]
 	RealType fParamLogBFieldSigma(0.55);//[G]
 	
 	if(m_pCfgPtr->MCMCParameterUse.bBInitMean) fParamLogBFieldMean=m_pCfgPtr->Model.fBInitMean;
 	if(m_pCfgPtr->MCMCParameterUse.bBInitSigma) fParamLogBFieldSigma=m_pCfgPtr->Model.fBInitSigma;
 
-	return m_pRanPtr->Gauss(fParamLogBFieldSigma, fParamLogBFieldMean);
-	//return m_pRanPtr->Gauss(fParamLogBFieldSigma) + fParamLogBFieldMean;
+	return m_pRanPtr->Gauss(cfLog2Ln*fParamLogBFieldSigma, cfLog2Ln*fParamLogBFieldMean)/cfLog2Ln;
 }
 
 RealType CPulsarPhysics::m_InitPeriodDistribution()
