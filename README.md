@@ -233,8 +233,8 @@ To run the MCMC computations isse:
 
 To make a xml config file run `./MCMCMaker -h` command which will produce a `Example.MCMCConfig.xml` file. The config files used for the MCMC computations presented in the paper are located here: 
 
-* for the *rotational* model - [MCMC.ERotAll.xml](http://sirius.astrouw.edu.pl/~mcie/antares/IndriP1/MCMC.ERotAll.xml) (md5sum: b58bda80608e9d1922b1596e60f8d28d)
-* for the *power-law* model - [MCMC.All.xml](http://sirius.astrouw.edu.pl/~mcie/antares/IndriP1/MCMC.All.xml) (md5sum: 71dc9b99dff900fb41c43307e50c7df8)
+* for the *rotational* model - [MCMC.ERotAll.xml](https://www.astrouw.edu.pl/~mcie/MCMC.ERotAll.xml) (md5sum: b58bda80608e9d1922b1596e60f8d28d)
+* for the *power-law* model - [MCMC.All.xml]((https://www.astrouw.edu.pl/~mcie/MCMC.All.xml) (md5sum: 71dc9b99dff900fb41c43307e50c7df8)
 
 Due to that some scripts in the pipeline may be name-sensitive some errors may arise
 should the names be changed. Also note that some of variables are used in the log scale 
